@@ -1,0 +1,7 @@
+ifcopenshell>=0.8.0,<0.9
+numpy>=1.26
+scipy>=1.11
+matplotlib==3.10.8
+pandas>=2.0
+streamlit>=1.50
+plotly>=5.24,<7

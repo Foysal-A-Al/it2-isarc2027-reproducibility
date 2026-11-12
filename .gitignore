@@ -1,0 +1,21 @@
+# Third-party raw datasets: fetch from original sources
+data/ifc/
+# Inspection/extraction staging only, not part of the repository
+archive_staging/
+*.zip
+# Local environments and caches
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.ipynb_checkpoints/
+.worktrees/
+*.log
+# OS/IDE
+.idea/
+.vscode/
+Thumbs.db

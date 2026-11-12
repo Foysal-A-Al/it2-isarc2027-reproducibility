@@ -1,0 +1,12 @@
+[
+  {
+    "local_name": "Clinic_HVAC.ifc",
+    "url": "https://media.githubusercontent.com/media/buildingsmart-community/Community-Sample-Test-Files/main/IFC%202.3.0.1%20%28IFC%202x3%29/Medical-Dental%20Clinic/Clinic_HVAC.ifc",
+    "sha256": "39c88a79f48fbe56da86afb0fb3ebd188f8930df3df7dbfbd9ecaa535aaeab9b"
+  },
+  {
+    "local_name": "Duplex_Plumbing_20121113.ifc",
+    "url": "https://media.githubusercontent.com/media/buildingsmart-community/Community-Sample-Test-Files/main/IFC%202.3.0.1%20%28IFC%202x3%29/Duplex%20Apartment/Duplex_Plumbing_20121113.ifc",
+    "sha256": "abfaf5c0979b6b4b05182aec7ada8945374bdb414db76c763724d549b41b212b"
+  }
+]

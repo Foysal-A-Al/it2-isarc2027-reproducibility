@@ -1,0 +1,12 @@
+{
+  "source_snapshot/it2/matching.py": "76da7da14979cd4397477b8060f3604a10efe1ea5b58e12493c5b047d2b9b327",
+  "source_snapshot/it2/features.py": "9fb107f5b50a98cb5fba28f4cbc455623ee1d687c0efcc10de0d27ec6005c2b3",
+  "source_snapshot/data/features/Duplex_Plumbing_20121113.json": "a7cc2c2f78204a70d3436bf235dbf03c970afc50d60fef52b2a63def271d75ed",
+  "source_snapshot/data/features/Duplex_MEP_20110907.json": "e48b5ad992d0f815c21d3e1fcddedd40cd4969a32327147cca501f84705cc02e",
+  "derived/Duplex_Plumbing_20121113_graph.json": "1026a8a92696eec33eee4d82d1e0a8d834ab99335a185bf2ed88fb186a294585",
+  "derived/Clinic_HVAC.json": "fef3dc43577323c5a6cd341d783ed36d50cbe3a30df18b09a36f9a899fb81e0a",
+  "derived/Duplex_Plumbing_20121113_provenance.json": "483d74828ecdc3103d013ccf3898c9426d984e3e70f69ff3b04c3e51e455e91e",
+  "derived/Clinic_HVAC_provenance.json": "fc8ea82bb873489e876eb5e5c73b8a1aad59e1adb10afc8358344d4d04b37f0f",
+  "derived/Clinic_HVAC_graph.json": "6e96320a3dbd715a7aca05c85b340b5c624a28357844c00655fd8b55810a621b",
+  "derived/Duplex_Plumbing_20121113.json": "3a4c08fc7f68edef7fa1544db713864f130b857c8e65ff2742807cac228bf939"
+}

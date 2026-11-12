@@ -1,0 +1,15 @@
+{
+  "description": "IT2 (review-aware, abstaining) vs BIMDelta Core on IFC revisions with regenerated GlobalIds plus coincident same-Tag decoys (near-coincident copies with no true predecessor; linking a decoy is a wrong match). BIMDelta behaviour measured from its own ElementDiff output, not assumed. 3 seeds (4000-4002). Script: scripts/92_ambiguity_comparison.py.",
+  "Duplex_Plumbing": {
+    "survivors": 498, "decoys_per_rev": 59,
+    "it2_review": {"precision": 1.000, "recall": 0.882, "wrong_per_survivor": 0.0000, "decoy_false_link": 0.000, "unresolved": 0.118},
+    "bimdelta":   {"precision": 0.983, "recall": 0.983, "wrong_per_survivor": 0.0174, "decoy_false_link": 0.147, "unresolved": 0.017},
+    "bimdelta_decoy_classification": {"ADDED_pct": 85, "MODIFIED_forced_pct": 15}
+  },
+  "Duplex_MEP": {
+    "survivors": 926, "decoys_per_rev": 111,
+    "it2_review": {"precision": 0.997, "recall": 0.937, "wrong_per_survivor": 0.0032, "decoy_false_link": 0.027, "unresolved": 0.063},
+    "bimdelta":   {"precision": 0.999, "recall": 0.965, "wrong_per_survivor": 0.0014, "decoy_false_link": 0.012, "unresolved": 0.035},
+    "bimdelta_decoy_classification": {"ADDED_pct": 99, "MODIFIED_forced_pct": 1}
+  }
+}

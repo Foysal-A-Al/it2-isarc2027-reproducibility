@@ -1,0 +1,10 @@
+{
+  "cases": 480,
+  "method_rows": 3840,
+  "score_identities_verified": true,
+  "independent_macro_recomputed": true,
+  "deterministic_cases": 2,
+  "baseline_means_reproduced": 9,
+  "unit_tests": 10,
+  "failures": []
+}

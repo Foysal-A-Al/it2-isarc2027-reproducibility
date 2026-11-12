@@ -1,0 +1,9 @@
+.git
+archive_staging
+data/ifc
+__pycache__
+*.zip
+.venv
+*.log
+.idea
+.worktrees

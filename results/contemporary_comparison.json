@@ -1,0 +1,20 @@
+{
+  "description": "IT2 review-aware matcher vs BIMDelta Core 0.9.0 vs IfcDiff (IfcOpenShell 0.9.0) on controlled IFC revisions with element-level ground truth. 0.30 of elements receive a sub-gate positional edit; two conditions: stable vs regenerated GlobalIds. Metrics scored on the common survivor denominator IT2 extracts. Seeds start at 3000. Script: scripts/91_contemporary_comparison.py.",
+  "models": {
+    "Duplex_Plumbing": {"survivors": 498, "updated_targets": 136, "seeds": 3},
+    "Duplex_MEP": {"survivors": 926, "updated_targets": 263, "seeds": 1},
+    "Clinic_HVAC": {"survivors": 3704, "updated_targets": 1149, "seeds": 1}
+  },
+  "results_identical_across_models": {
+    "stable_ids": {
+      "ifcdiff":  {"precision": 1.0, "recall": 1.0, "updated_target_recovery": 1.0, "unresolved": 0.0},
+      "bimdelta": {"precision": 1.0, "recall": 1.0, "updated_target_recovery": 1.0, "unresolved": 0.0},
+      "it2_review": {"precision": 1.0, "recall": 1.0, "updated_target_recovery": 1.0, "unresolved": 0.0}
+    },
+    "regenerated_ids": {
+      "ifcdiff":  {"precision": null, "recall": 0.0, "updated_target_recovery": 0.0, "unresolved": 1.0, "note": "returns no correspondences; every element reported added and deleted"},
+      "bimdelta": {"precision": 1.0, "recall": 1.0, "updated_target_recovery": 1.0, "unresolved": 0.0},
+      "it2_review": {"precision": 1.0, "recall": 1.0, "updated_target_recovery": 1.0, "unresolved": 0.0}
+    }
+  }
+}

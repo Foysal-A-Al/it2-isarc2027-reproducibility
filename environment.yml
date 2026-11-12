@@ -1,0 +1,17 @@
+name: it2
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  # OpenBLAS, as in the pip wheels used by Docker and CI. The win-64 MKL 2026.1 build with
+  # llvm-openmp 23.1.2 aborts on every matrix product (0xC06D007F).
+  - libblas=*=*openblas
+  - scipy
+  - matplotlib=3.10.8  # snapshot version; other versions change PNG bytes
+  - pandas
+  - pip:
+      - ifcopenshell>=0.8.0,<0.9
+      - streamlit>=1.50
+      - plotly>=5.24,<7

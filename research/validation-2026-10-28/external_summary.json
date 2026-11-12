@@ -1,0 +1,158 @@
+{
+  "completed_pairs": 36,
+  "failed_pairs": 0,
+  "completed_files": 43,
+  "missing_geometry": 212,
+  "total_geometry_candidates": 25736,
+  "distinct_source_building_ids": 5,
+  "methods": [
+    {
+      "method": "centre_dimensions",
+      "pairs": 36,
+      "precision": 1.0,
+      "recall": 0.9965374059163978,
+      "wrong_per_survivor": 0.0,
+      "review_fraction": 0.003462594083602154,
+      "update_targets_available": 12,
+      "update_targets_correct": 4,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 0,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 0,
+      "unadjudicated": 0
+    },
+    {
+      "method": "original_hybrid",
+      "pairs": 36,
+      "precision": 1.0,
+      "recall": 0.9965374059163978,
+      "wrong_per_survivor": 0.0,
+      "review_fraction": 0.003462594083602154,
+      "update_targets_available": 12,
+      "update_targets_correct": 4,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 0,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 0,
+      "unadjudicated": 0
+    },
+    {
+      "method": "partial_original_cost",
+      "pairs": 36,
+      "precision": 1.0,
+      "recall": 0.9965374059163978,
+      "wrong_per_survivor": 0.0,
+      "review_fraction": 0.003462594083602154,
+      "update_targets_available": 12,
+      "update_targets_correct": 4,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 0,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 0,
+      "unadjudicated": 0
+    },
+    {
+      "method": "placement",
+      "pairs": 36,
+      "precision": 0.9957579355168887,
+      "recall": 0.9928517886775641,
+      "wrong_per_survivor": 0.004152285869259188,
+      "review_fraction": 0.003474128144884656,
+      "update_targets_available": 12,
+      "update_targets_correct": 8,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 5,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 5,
+      "unadjudicated": 0
+    },
+    {
+      "method": "review_margin_003",
+      "pairs": 36,
+      "precision": 1.0,
+      "recall": 0.9789769416150532,
+      "wrong_per_survivor": 0.0,
+      "review_fraction": 0.021023058384946766,
+      "update_targets_available": 12,
+      "update_targets_correct": 6,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 0,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 0,
+      "unadjudicated": 0
+    },
+    {
+      "method": "review_zero_margin",
+      "pairs": 36,
+      "precision": 1.0,
+      "recall": 0.9789769416150532,
+      "wrong_per_survivor": 0.0,
+      "review_fraction": 0.021023058384946766,
+      "update_targets_available": 12,
+      "update_targets_correct": 6,
+      "update_targets_requested": 12,
+      "created_entities": 12,
+      "created_falsely_linked": 0,
+      "deleted_targets": 12,
+      "deleted_falsely_carried": 0,
+      "unadjudicated": 0
+    }
+  ],
+  "paper_paragraphs": [
+    "The external test uses BIM-Edit/BIM-Edit pinned to commit 0ae510bd21865def4e2c6145c1244f01a1e3bcb9. Task variants are deduplicated by input/reference pair. A metadata-only limit of 25,000,000 bytes per file, fixed before outcomes, selects 36 of 54 unique realistic pairs (12 each for creation, update and deletion), involving 43 distinct IFC files; 18 exclusions are recorded. Of these, 36 pairs completed, with operation counts {'create': 12, 'update': 12, 'delete': 12}. The completed input files contain 5 distinct IfcBuilding identifiers; edit pairs and files are not independent buildings.",
+    "Geometry extraction completed for 43 of 43 selected files, yielding 25,524 fingerprints from 25,736 IfcElement/IfcSpace instances summed across distinct files; 212 instances have no usable geometry. Unique common object GlobalIds give partial reference correspondences only. Object GlobalIds and Tags are masked in method inputs; class, name, geometry and container identifiers remain available, including stable contextual information. Predictions involving neither reference-labelled side are unadjudicated. Missing geometry, duplicate IDs, target availability and per-pair scores are retained. The benchmark authors describe human-authored IFC edits; these are not consecutive operational MEP histories.",
+    "Across completed pairs, original-hybrid macro-average precision/recall are 100.00%/99.65%, compared with 100.00%/97.90% for the review matcher. On reference-labelled update targets, the original hybrid recovers 4/12, and the review matcher recovers 6/12. All 12 requested update targets have available geometry and unique common reference identifiers. These targeted results limit any interpretation of high all-element scores as successful handling of redesign. No parameter fitting uses the external data.",
+    "For the review matcher, 0/12 new reference entities are linked to an old object, and 0/12 reference-deleted targets are carried forward. These are operation-specific diagnostics with available geometric labels; they do not establish correctness for unlabelled replacements. The original hybrid counts are 0/12 and 0/12, respectively.",
+    "A target-level cost audit shows that all six update targets missed by the review matcher have true-pair costs above the fixed 0.5 m gate, with centre displacements from 0.8 to 3.9 m. This is a demonstrated scope limit of the gate; it was not loosened after observing these outcomes. Placement recovers 8/12 changed targets but falsely carries 5/12 deleted targets and links 5/12 created entities. The zero-gap and 0.03 m review variants give the same external outcomes, so this subset provides no separate empirical benefit for the additional margin."
+  ],
+  "table": [
+    [
+      "centre_dimensions",
+      "100.00",
+      "99.65",
+      "4/12",
+      0
+    ],
+    [
+      "original_hybrid",
+      "100.00",
+      "99.65",
+      "4/12",
+      0
+    ],
+    [
+      "partial_original_cost",
+      "100.00",
+      "99.65",
+      "4/12",
+      0
+    ],
+    [
+      "placement",
+      "99.58",
+      "99.29",
+      "8/12",
+      0
+    ],
+    [
+      "review_margin_003",
+      "100.00",
+      "97.90",
+      "6/12",
+      0
+    ],
+    [
+      "review_zero_margin",
+      "100.00",
+      "97.90",
+      "6/12",
+      0
+    ]
+  ],
+  "target_detail": "For the review matcher, 0/12 new reference entities are linked to an old object, and 0/12 reference-deleted targets are carried forward. These are operation-specific diagnostics with available geometric labels; they do not establish correctness for unlabelled replacements. The original hybrid counts are 0/12 and 0/12, respectively."
+}
