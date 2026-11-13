@@ -63,3 +63,10 @@ Generate into a fresh external directory; **never overwrite the historical `resu
 
 - Optional packages `bimdelta-core==0.9.0` and `ifcdiff==0.9.0` were installed under a separate audit folder, not into operational applications.
 - The original Table 4 BIMDelta saved results have not yet been independently reproduced across all models and seeds. Treat that test as **open** until direct run records complete.
+
+## 7. Direct BIMDelta Core 0.9.0 run (one seed verified)
+
+- The original `scripts/91_contemporary_comparison.py` was rerun with actual `bimdelta_core.run_diff` on Duplex Plumbing, seed 3000, stable and regenerated GlobalIds, against the exact source IFC hash given above.
+- IT2 and BIMDelta each returned **100% correspondence recall** under both ID conditions. The script's GlobalId-intersection adapter for IfcDiff returned **100%** under stable IDs and **0%** under regenerated IDs, in agreement with the separate actual IfcDiff execution.
+- The captured raw console output is `bimdelta_real_plumbing_seed3000.txt`. The run performed real BIMDelta code execution, not a substituted BIMDelta approximation.
+- **Still open:** two additional saved plumbing seeds and the one saved seed for each of Duplex MEP and Clinic HVAC have not yet been independently rerun in this audit. The saved Table 4 values remain supported by archived evidence only for those cases.
