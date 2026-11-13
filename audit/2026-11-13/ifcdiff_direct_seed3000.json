@@ -1,0 +1,26 @@
+{
+  "seed": 3000,
+  "source": "Duplex_Plumbing_20121113.ifc",
+  "tool": "IfcDiff 0.9.0 actual library execution",
+  "scope_note": "IfcDiff counts can include spatial elements, but recall denominator is IfcElement",
+  "results": {
+    "stable": {
+      "source_IfcElement": 498,
+      "revised_IfcElement": 498,
+      "matched_IfcElement_GlobalIds": 498,
+      "ifcdiff_added_elements_including_spatial": 0,
+      "ifcdiff_deleted_elements_including_spatial": 0,
+      "ifcdiff_changed": 0,
+      "correspondence_recall_for_IfcElement": 1.0
+    },
+    "regenerated": {
+      "source_IfcElement": 498,
+      "revised_IfcElement": 498,
+      "matched_IfcElement_GlobalIds": 0,
+      "ifcdiff_added_elements_including_spatial": 504,
+      "ifcdiff_deleted_elements_including_spatial": 504,
+      "ifcdiff_changed": 0,
+      "correspondence_recall_for_IfcElement": 0.0
+    }
+  }
+}

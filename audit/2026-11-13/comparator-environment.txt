@@ -1,0 +1,8 @@
+Optional comparator packages used in the independent audit (install in an isolated environment):
+
+bimdelta-core==0.9.0
+ifcdiff==0.9.0
+
+Dependencies are resolved by the package manager when the packages are installed normally.
+These packages are NOT required for the original saved-feature numerical harness.
+Do not install them into the existing operational Docker services.

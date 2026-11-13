@@ -1,0 +1,15 @@
+{
+  "status": "regenerated from saved 20-seed identity summaries; NOT an authentication of original 3-seed manuscript image",
+  "generator": "scripts/plot_isarc_identity.py",
+  "seed_source": "scripts/03_identity.py: SEEDS=20",
+  "input_files": [
+    "results/identity_Duplex_Plumbing_20121113.json",
+    "results/identity_Duplex_MEP_20110907.json"
+  ],
+  "methods": [
+    "tag",
+    "placement",
+    "hybrid"
+  ],
+  "figure": "figure2_20seed_traceable.png"
+}
