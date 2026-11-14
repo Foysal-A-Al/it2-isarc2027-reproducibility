@@ -1,6 +1,7 @@
 FROM nginxinc/nginx-unprivileged:stable-alpine
 COPY web/index.html /usr/share/nginx/html/index.html
 COPY charts/ /usr/share/nginx/html/charts/
+COPY audit/2026-11-13/ /usr/share/nginx/html/audit/
 COPY results/ /usr/share/nginx/html/results/
 COPY research/validation-2026-10-28/ /usr/share/nginx/html/validation/
 EXPOSE 8080
