@@ -12,7 +12,7 @@
 [![Evidence](https://img.shields.io/badge/Evidence-Saved%20Results-3d759b?style=flat-square)](results/)
 [![Reproducibility](https://img.shields.io/badge/Reproducibility-Documented-e5a55a?style=flat-square)](REPRODUCIBILITY.md)
 
-**[Research question](#research-question) · [Key findings](#key-findings) · [Figures](#visual-results) · [Methods](#methodology) · [Reproduce](#reproduce-the-study) · [Docker](#local-evidence-dashboard) · [Limitations](#scope-and-limitations)**
+**[Research question](#research-question) · [Key findings](#key-findings) · [Figures](#visual-results) · [Methods](#methodology) · [Mathematics](#mathematical-definitions-used-in-the-experiments) · [Paper evidence](PAPER_REPRODUCTION.md) · [Reproduce](#reproduce-the-study) · [Docker](#local-evidence-dashboard) · [Limitations](#scope-and-limitations)**
 
 </div>
 
@@ -138,9 +138,128 @@ The [`figures/`](figures/) directory retains **historical original IT2 study fig
 ├── requirements-lock.txt         # Dependency snapshot
 ├── ARCHIVE_MANIFEST.sha256       # SHA-256 of original uploaded ZIP contents
 ├── REPRODUCIBILITY.md            # Bundled detailed historical reproduction guide
+├── PAPER_REPRODUCTION.md         # Current ISARC tables, figures, and evidence map
 ├── Dockerfile / compose.yml      # Local dashboard (port 8674)
 └── README.md
 ```
+
+
+## Mathematical definitions used in the experiments
+
+The equations below describe **the actual stored experiment implementations**, not a new algorithm. See [PAPER_REPRODUCTION.md](PAPER_REPRODUCTION.md) for the paper-specific table/figure-to-script mapping, input sources and verification boundaries. The original hybrid and review-aware matcher use **different costs and assignment policies**; do not combine them into one purported tested method.
+
+### 1. Reported IFC topology descriptors
+
+Let \(D\) be the set of extracted \`IfcDistributionElement\` instances, \(P\) all exported \`IfcPort\` instances, \(P_c\) the port IDs participating in \`IfcRelConnectsPorts\` relationships, and \(G=(D,E)\) the **undirected element graph** formed from explicit port connections with **one unambiguous host** at each endpoint. Let \(C_1,\ldots,C_k\) be its connected components (including isolated elements), and let \(D_s\) be elements assigned to at least one named \`IfcSystem\`.
+
+$
+PC=\frac{|\{e\in D:\ e\text{ has at least one host-associated port}\}|}{|D|}
+\qquad
+CC=\begin{cases}|P_c|/|P|,&|P|>0\\0,&|P|=0\end{cases}
+$
+
+$
+LC=\frac{\max_i |C_i|}{|D|},\qquad
+SM=\frac{|D_s|}{|D|},\qquad
+k=\text{number of connected components}.
+$
+
+The underlying graph implementation is [it2/graph.py](it2/graph.py); the metric computation is [it2/topology.py](it2/topology.py). **CC counts ports participating in exported relations**, including relations whose host ownership prevents inclusion in \(E\); it is **not** the fraction of valid element-to-element edges. Port or system coverage does **not** establish engineering correctness. The paper also describes identity continuity conceptually; it is **not** a measurement of verified real-world asset identity.
+
+### 2. Correspondence, errors and uncertainty
+
+For a constructed revision, let \(T\) be the known true surviving new-to-old element mapping, \(M\) the predicted one-to-one matched pairs, and \(TP=|M\cap T|\). Wrong matches include any predicted pair outside \(T\), including pairs to added decoys. Let \(N=|T|\).
+
+$
+\mathrm{Precision}=\frac{TP}{|M|},\qquad
+\mathrm{Recall}=\frac{TP}{N},\qquad
+F_1=\frac{2PR}{P+R}.
+$
+
+$
+W=\frac{|M|-TP}{N},\qquad
+U=\frac{|\{j\in T:j\text{ has no predicted pair}\}|}{N}.
+$
+
+Here \(W\) is **wrong pairs per true survivor**, not \(1-\mathrm{Precision}\), and \(U\) counts unmatched survivors. Values are expressed as percentages in paper tables. Empty-set conventions vary by evaluation driver: [it2/matching.py](it2/matching.py) assigns precision \(=1\) for no predictions (and recall \(=0\) when truth is nonempty); that is a **software convention**, not evidence of perfect precision. Check denominator and adjudication rules in the relevant script before comparing across experiments.
+
+For \(K\) fixed model-seed runs, a reported macro-average of a metric \(x\) is
+
+$
+\bar x_{\mathrm{macro}}=\frac{1}{K}\sum_{i=1}^{K}x_i.
+$
+
+For Table 3 this is over **36 selected BIM-Edit pairs**; for Table 6 it is over **three fixed models × 20 seeds = 60 model-seed runs**. The random seeds are repeated perturbations, **not independent sampled buildings**. When used, the 95% percentile bootstrap interval resamples **seed-level metrics**, not individual IFC elements; it does not quantify population uncertainty across buildings.
+
+### 3. Original hybrid matching (Figure 2 baseline)
+
+The original geometry stage partitions candidates by **(IFC class, spatial container)**. For candidate old \(i\) and new \(j\), define bounding-box centre \(c\), sorted dimensions \(d\), and type-name string \(t\). Its cost in [it2/matching.py](it2/matching.py) is
+
+$
+C_{\mathrm{hybrid}}(i,j)=
+\|c_i-c_j\|_2+
+\sum_{a=1}^{3}|d_{ia}-d_{ja}|+
+\lambda\,\mathbf{1}[t_i\ne t_j],
+\qquad \lambda=0.3.
+$
+
+The **original** hybrid first matches exact \`(IFC class, Tag)\` keys, then minimizes total geometric assignment cost among remaining pairs using a Hungarian assignment. After assignment it retains only pairs with \(C_{\mathrm{hybrid}}\le\tau\), where \(\tau=0.5\) m. The **placement-only** baseline instead assigns using placement-origin Euclidean distance (default placement gate \(1.0\) m); it is **not** the same as the centre-plus-dimensions geometry stage. The Figure 2 simulation recreates GlobalIds, and the original experimental matchers do **not** use those GlobalIds as matching keys.
+
+### 4. Review-aware matching (Tables 3, 4, 5 and 6)
+
+The review-aware geometry stage in [it2/review_matching.py](it2/review_matching.py) uses **IFC-class groups** and a **soft** container penalty. Let \(q_i\) denote the extracted type name, and let
+
+\[
+h(i,j)=\mathbf{1}\bigl[q_i\neq q_j\ \land\ q_i\text{ occurs in new types}\ \land\ q_j\text{ occurs in old types}\bigr].
+\]
+
+Its implemented candidate cost is
+
+$
+C_{\mathrm{review}}(i,j)=
+\|c_i-c_j\|_2
++0.1\min\!\left(\sum_{a=1}^{3}
+\left|\ln\max(d_{ia},0.001)-\ln\max(d_{ja},0.001)\right|,3\right)
++0.15h(i,j)
++0.05\,\mathbf{1}[\mathrm{container}_i\ne\mathrm{container}_j].
+$
+
+Only finite candidates with \(C_{\mathrm{review}}\le0.5\) m are eligible for partial one-to-one assignment; unmatched outcomes are permitted. For each assigned geometric pair \((i,j)\), its **competitive gap** is
+
+$
+\Delta_{ij}=\min\!\left(
+\min_{k\ne j}C_{\mathrm{review}}(i,k),\
+\min_{\ell\ne i}C_{\mathrm{review}}(\ell,j)
+\right)-C_{\mathrm{review}}(i,j).
+$
+
+The pair is accepted only when \(\Delta_{ij}>0.03\) m; ties and close alternatives remain unresolved. If no competitor exists, the gap is treated as infinite. The comparison scripts use unique class/Tag keys with a geometric plausibility check before applying this stage; the operational [it2/checker.py](it2/checker.py) workflow can additionally use retained GlobalIds first. **Do not treat these as the exact same experimental path.**
+
+The \(0.03\) m gap is an uncalibrated heuristic. In the archived external BIM-Edit subset, the **zero-margin and 0.03 m variants have identical reported outcomes**, so this dataset does **not** establish the separate benefit of the margin.
+
+### 5. Explicit-network disagreement and structural baseline
+
+Let \(E_\mathrm{old}^{\rightarrow}\) be earlier element edges mapped into the later version through an approved one-to-one identity mapping, and \(E_\mathrm{new}^{*}\) the later edges restricted to mapped endpoints. The implementation reports
+
+$
+E_{\mathrm{retained}}=E_\mathrm{old}^{\rightarrow}\cap E_\mathrm{new}^{*},
+\quad
+E_{\mathrm{removed}}=E_\mathrm{old}^{\rightarrow}\setminus E_\mathrm{new}^{*},
+\quad
+E_{\mathrm{added}}=E_\mathrm{new}^{*}\setminus E_\mathrm{old}^{\rightarrow}.
+$
+
+Connections involving unmatched endpoints are **unresolved**, not assumed deleted. This is [it2/graph.py](it2/graph.py) (\`compare_connections\`), and differences signal changed **exported adjacency**, not proven engineering faults.
+
+The stress-table structural baseline computes a two-round Weisfeiler–Lehman-style signature starting from IFC class labels:
+
+$
+s_v^{(0)}=\mathrm{IFCClass}(v),\qquad
+s_v^{(t+1)}=H\!\left(s_v^{(t)}\,\Vert\,\operatorname{sort}\{s_u^{(t)}:u\in N(v)\}\right),\quad t=0,1.
+$
+
+The resulting signatures partition candidate elements; the tested structural-geometric variant then uses geometric assignment **inside signature groups**. See [scripts/08_comparator_signature.py](scripts/08_comparator_signature.py) and [scripts/90_comparator_full.py](scripts/90_comparator_full.py). This constructed baseline is **not BIMdiff**.
+
 
 ## Reproduce the study
 
