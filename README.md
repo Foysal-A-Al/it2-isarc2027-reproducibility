@@ -144,122 +144,227 @@ The [`figures/`](figures/) directory retains **historical original IT2 study fig
 ```
 
 
-## Mathematical definitions used in the experiments
+## Mathematical formulation of IT2
 
-The equations below describe **the actual stored experiment implementations**, not a new algorithm. See [PAPER_REPRODUCTION.md](PAPER_REPRODUCTION.md) for the paper-specific table/figure-to-script mapping, input sources and verification boundaries. The original hybrid and review-aware matcher use **different costs and assignment policies**; do not combine them into one purported tested method.
+The following is the **equation-level specification of the implemented research methods**, with matching stages, optimization objectives, acceptance rules and evaluation metrics. The original hybrid and the review-aware extension are **distinct algorithms**. Full code and table provenance: [PAPER_REPRODUCTION.md](PAPER_REPRODUCTION.md).
 
-### 1. Reported IFC topology descriptors
+### 1. Symbols and IFC graph construction
 
-Let \(D\) be the set of extracted \`IfcDistributionElement\` instances, \(P\) all exported \`IfcPort\` instances, \(P_c\) the port IDs participating in \`IfcRelConnectsPorts\` relationships, and \(G=(D,E)\) the **undirected element graph** formed from explicit port connections with **one unambiguous host** at each endpoint. Let \(C_1,\ldots,C_k\) be its connected components (including isolated elements), and let \(D_s\) be elements assigned to at least one named \`IfcSystem\`.
+| Symbol | Definition |
+|:---:|---|
+| \(X=\{x_i\}_{i=1}^{n}\), \(Y=\{y_j\}_{j=1}^{m}\) | Earlier and revised IFC element sets |
+| \(g_i,t_i,q_i,k_i\) | GlobalId, Tag, type name, IFC class of an element |
+| \(s_i,\mathbf{c}_i,\mathbf{d}_i,\mathbf{p}_i\) | Spatial container, box centre, sorted box dimensions, placement origin |
+| \(D,P,R\) | Distribution elements, exported ports, \`IfcRelConnectsPorts\` relations |
+| \(h(p)\) | Host distribution element of port \(p\), when unique |
+| \(M,T\) | Predicted pairs and reference-correct survivor pairs |
 
-$
-PC=\frac{|\{e\in D:\ e\text{ has at least one host-associated port}\}|}{|D|}
+**Explicit-port adjacency** (undirected, uniquely owned endpoints):
+
+$$
+\tag{1}
+E=\left\{\{h(p),h(q)\}:
+(p,q)\in R,\; |h(p)|=|h(q)|=1,\;h(p)\neq h(q)\right\},\qquad G=(D,E).
+$$
+
+**Coverage and graph descriptors**, with \(P_R=\{p:\exists q,\;(p,q)\in R\lor(q,p)\in R\}\), connected components \(C_1,\ldots,C_K\), and \(D_S\subseteq D\) belonging to a named system:
+
+$$
+\tag{2}
+PC=\frac{\sum_{e\in D}\mathbf{1}[\,\deg_{\mathrm{ports}}(e)>0\,]}{|D|},
+\quad
+CC=\begin{cases}\frac{|P_R|}{|P|},&|P|>0,\\[2pt]0,&|P|=0,\end{cases}
+$$
+
+$$
+\tag{3}
+LC=\frac{\max_{1\leq r\leq K}|C_r|}{|D|},
 \qquad
-CC=\begin{cases}|P_c|/|P|,&|P|>0\\0,&|P|=0\end{cases}
-$
+SM=\frac{|D_S|}{|D|},
+\qquad
+K=|\operatorname{CC}(G)|.
+$$
 
-$
-LC=\frac{\max_i |C_i|}{|D|},\qquad
-SM=\frac{|D_s|}{|D|},\qquad
-k=\text{number of connected components}.
-$
+For \(D=\varnothing\), the implementation raises an error. \(CC\) counts **ports in exported connection relations**, even if a relation is excluded from \(E\) because its host is ambiguous. Equations (1)–(3): [it2/graph.py](it2/graph.py), [it2/topology.py](it2/topology.py).
 
-The underlying graph implementation is [it2/graph.py](it2/graph.py); the metric computation is [it2/topology.py](it2/topology.py). **CC counts ports participating in exported relations**, including relations whose host ownership prevents inclusion in \(E\); it is **not** the fraction of valid element-to-element edges. Port or system coverage does **not** establish engineering correctness. The paper also describes identity continuity conceptually; it is **not** a measurement of verified real-world asset identity.
+### 2. Original hybrid: Tag matching followed by Hungarian assignment
 
-### 2. Correspondence, errors and uncertainty
+**Stage H1 — exact class–Tag keys** (as implemented for the original experimental hybrid):
 
-For a constructed revision, let \(T\) be the known true surviving new-to-old element mapping, \(M\) the predicted one-to-one matched pairs, and \(TP=|M\cap T|\). Wrong matches include any predicted pair outside \(T\), including pairs to added decoys. Let \(N=|T|\).
+$$
+\tag{4}
+M_{\mathrm{Tag}}=\{(i,j):k_i=k_j,\;t_i=t_j\neq\varnothing\}.
+$$
 
-$
-\mathrm{Precision}=\frac{TP}{|M|},\qquad
-\mathrm{Recall}=\frac{TP}{N},\qquad
-F_1=\frac{2PR}{P+R}.
-$
+**Stage H2 — geometry cost**, within hard partitions \(k_i=k_j\) and \(s_i=s_j\):
 
-$
-W=\frac{|M|-TP}{N},\qquad
-U=\frac{|\{j\in T:j\text{ has no predicted pair}\}|}{N}.
-$
-
-Here \(W\) is **wrong pairs per true survivor**, not \(1-\mathrm{Precision}\), and \(U\) counts unmatched survivors. Values are expressed as percentages in paper tables. Empty-set conventions vary by evaluation driver: [it2/matching.py](it2/matching.py) assigns precision \(=1\) for no predictions (and recall \(=0\) when truth is nonempty); that is a **software convention**, not evidence of perfect precision. Check denominator and adjudication rules in the relevant script before comparing across experiments.
-
-For \(K\) fixed model-seed runs, a reported macro-average of a metric \(x\) is
-
-$
-\bar x_{\mathrm{macro}}=\frac{1}{K}\sum_{i=1}^{K}x_i.
-$
-
-For Table 3 this is over **36 selected BIM-Edit pairs**; for Table 6 it is over **three fixed models × 20 seeds = 60 model-seed runs**. The random seeds are repeated perturbations, **not independent sampled buildings**. When used, the 95% percentile bootstrap interval resamples **seed-level metrics**, not individual IFC elements; it does not quantify population uncertainty across buildings.
-
-### 3. Original hybrid matching (Figure 2 baseline)
-
-The original geometry stage partitions candidates by **(IFC class, spatial container)**. For candidate old \(i\) and new \(j\), define bounding-box centre \(c\), sorted dimensions \(d\), and type-name string \(t\). Its cost in [it2/matching.py](it2/matching.py) is
-
-$
-C_{\mathrm{hybrid}}(i,j)=
-\|c_i-c_j\|_2+
-\sum_{a=1}^{3}|d_{ia}-d_{ja}|+
-\lambda\,\mathbf{1}[t_i\ne t_j],
+$$
+\tag{5}
+C^{H}_{ij}
+=\|\mathbf{c}_i-\mathbf{c}_j\|_2
++\|\mathbf{d}_i-\mathbf{d}_j\|_1
++\lambda\,\mathbf{1}[q_i\neq q_j],
 \qquad \lambda=0.3.
-$
+$$
 
-The **original** hybrid first matches exact \`(IFC class, Tag)\` keys, then minimizes total geometric assignment cost among remaining pairs using a Hungarian assignment. After assignment it retains only pairs with \(C_{\mathrm{hybrid}}\le\tau\), where \(\tau=0.5\) m. The **placement-only** baseline instead assigns using placement-origin Euclidean distance (default placement gate \(1.0\) m); it is **not** the same as the centre-plus-dimensions geometry stage. The Figure 2 simulation recreates GlobalIds, and the original experimental matchers do **not** use those GlobalIds as matching keys.
+For unmatched \(I=X\setminus\pi_X(M_{\mathrm{Tag}})\), \(J=Y\setminus\pi_Y(M_{\mathrm{Tag}})\), solve **separately in each class–container partition**:
 
-### 4. Review-aware matching (Tables 3, 4, 5 and 6)
-
-The review-aware geometry stage in [it2/review_matching.py](it2/review_matching.py) uses **IFC-class groups** and a **soft** container penalty. Let \(q_i\) denote the extracted type name, and let
-
-\[
-h(i,j)=\mathbf{1}\bigl[q_i\neq q_j\ \land\ q_i\text{ occurs in new types}\ \land\ q_j\text{ occurs in old types}\bigr].
-\]
-
-Its implemented candidate cost is
-
-$
-C_{\mathrm{review}}(i,j)=
-\|c_i-c_j\|_2
-+0.1\min\!\left(\sum_{a=1}^{3}
-\left|\ln\max(d_{ia},0.001)-\ln\max(d_{ja},0.001)\right|,3\right)
-+0.15h(i,j)
-+0.05\,\mathbf{1}[\mathrm{container}_i\ne\mathrm{container}_j].
-$
-
-Only finite candidates with \(C_{\mathrm{review}}\le0.5\) m are eligible for partial one-to-one assignment; unmatched outcomes are permitted. For each assigned geometric pair \((i,j)\), its **competitive gap** is
-
-$
-\Delta_{ij}=\min\!\left(
-\min_{k\ne j}C_{\mathrm{review}}(i,k),\
-\min_{\ell\ne i}C_{\mathrm{review}}(\ell,j)
-\right)-C_{\mathrm{review}}(i,j).
-$
-
-The pair is accepted only when \(\Delta_{ij}>0.03\) m; ties and close alternatives remain unresolved. If no competitor exists, the gap is treated as infinite. The comparison scripts use unique class/Tag keys with a geometric plausibility check before applying this stage; the operational [it2/checker.py](it2/checker.py) workflow can additionally use retained GlobalIds first. **Do not treat these as the exact same experimental path.**
-
-The \(0.03\) m gap is an uncalibrated heuristic. In the archived external BIM-Edit subset, the **zero-margin and 0.03 m variants have identical reported outcomes**, so this dataset does **not** establish the separate benefit of the margin.
-
-### 5. Explicit-network disagreement and structural baseline
-
-Let \(E_\mathrm{old}^{\rightarrow}\) be earlier element edges mapped into the later version through an approved one-to-one identity mapping, and \(E_\mathrm{new}^{*}\) the later edges restricted to mapped endpoints. The implementation reports
-
-$
-E_{\mathrm{retained}}=E_\mathrm{old}^{\rightarrow}\cap E_\mathrm{new}^{*},
+$$
+\tag{6}
+Z_H^\star=\underset{z_{ij}\in\{0,1\}}{\arg\min}
+\sum_{i\in I}\sum_{j\in J}C^H_{ij}z_{ij},
 \quad
-E_{\mathrm{removed}}=E_\mathrm{old}^{\rightarrow}\setminus E_\mathrm{new}^{*},
+\sum_j z_{ij}\leq1,\quad\sum_i z_{ij}\leq1,
+\quad \sum_{ij}z_{ij}=\min(|I|,|J|).
+$$
+
+**Stage H3 — post-assignment distance gate**:
+
+$$
+\tag{7}
+M_H=M_{\mathrm{Tag}}\;\cup\;\{(i,j):z^\star_{ij}=1,\;C^H_{ij}\leq\tau_H\},
+\qquad\tau_H=0.5\,\mathrm{m}.
+$$
+
+The original code applies the gate **after** Hungarian assignment; it is not a partial gated solver. The placement-only baseline replaces (5) with \(C^{P}_{ij}=\|\mathbf p_i-\mathbf p_j\|_2\) and uses \(\tau_P=1.0\,\mathrm m\). Equations (4)–(7): [it2/matching.py](it2/matching.py). Exact-key uniqueness is **not enforced by the historical original Tag baseline**.
+
+### 3. Review-aware matcher: partial assignment and ambiguity rejection
+
+**Stage R1 — unique class–Tag pairs passing the geometric plausibility gate:**
+
+$$
+\tag{8}
+M_{\mathrm{key}}=\left\{(i,j):
+\begin{array}{l}
+(k_i,t_i)=(k_j,t_j),\;t_i\neq\varnothing,\\
+\#_X(k_i,t_i)=\#_Y(k_j,t_j)=1,\\
+\|\mathbf c_i-\mathbf c_j\|_2\leq0.5\,\mathrm m
+\end{array}\right\}.
+$$
+
+After removing those pairs, define the remaining element sets \(I,J\), partitioned **by IFC class** (container disagreement is penalized, not excluded).
+
+**Stage R2 — review-aware cost:**
+
+$$
+\tag{9}
+A_{ij}=\mathbf{1}[q_i\neq q_j]\,
+\mathbf{1}[q_i\in Q_Y]\,
+\mathbf{1}[q_j\in Q_X],
+$$
+
+$$
+\tag{10}
+C^R_{ij}=
+\|\mathbf c_i-\mathbf c_j\|_2
++0.1\min\!\left\{\sum_{a=1}^{3}\left|
+\ln\max(d_{ia},10^{-3})-\ln\max(d_{ja},10^{-3})\right|,3\right\}
++0.15A_{ij}
++0.05\mathbf{1}[s_i\neq s_j].
+$$
+
+**Stage R3 — feasible partial one-to-one matching.** Define \(\mathcal F=\{(i,j):k_i=k_j,\ C^R_{ij}\leq\tau_R\}\), \(\tau_R=0.5\,\mathrm m\). The implementation first maximizes admissible pair count, then minimizes total cost among those maximum-cardinality solutions:
+
+$$
+\tag{11}
+Z_R^\star=\underset{Z\subseteq\mathcal F}{\arg\min}
+\left(-|Z|,\ \sum_{(i,j)\in Z}C^R_{ij}\right)_{\mathrm{lex}},
 \quad
-E_{\mathrm{added}}=E_\mathrm{new}^{*}\setminus E_\mathrm{old}^{\rightarrow}.
-$
+\deg_Z(i)\leq1,\;\deg_Z(j)\leq1.
+$$
 
-Connections involving unmatched endpoints are **unresolved**, not assumed deleted. This is [it2/graph.py](it2/graph.py) (\`compare_connections\`), and differences signal changed **exported adjacency**, not proven engineering faults.
+**Stage R4 — confidence-by-competition rejection.** For a geometrically assigned \((i,j)\), compare its cost to all other candidates in its row and column of the **same class cost matrix**:
 
-The stress-table structural baseline computes a two-round Weisfeiler–Lehman-style signature starting from IFC class labels:
+$$
+\tag{12}
+\Delta_{ij}=
+\min\left\{\min_{k\neq j}C^R_{ik},\
+\min_{\ell\neq i}C^R_{\ell j}\right\}-C^R_{ij},
+\qquad \min\varnothing=+\infty.
+$$
 
-$
-s_v^{(0)}=\mathrm{IFCClass}(v),\qquad
-s_v^{(t+1)}=H\!\left(s_v^{(t)}\,\Vert\,\operatorname{sort}\{s_u^{(t)}:u\in N(v)\}\right),\quad t=0,1.
-$
+$$
+\tag{13}
+M_R=M_{\mathrm{key}}\;\cup\;
+\{(i,j)\in Z_R^\star:\Delta_{ij}>\max(0.03,10^{-12})\,\mathrm m\}.
+$$
 
-The resulting signatures partition candidate elements; the tested structural-geometric variant then uses geometric assignment **inside signature groups**. See [scripts/08_comparator_signature.py](scripts/08_comparator_signature.py) and [scripts/90_comparator_full.py](scripts/90_comparator_full.py). This constructed baseline is **not BIMdiff**.
+The \(0.03\) m margin is a **fixed heuristic**, not a calibrated probability. The recorded BIM-Edit subset gives the same outcomes for the zero-margin and 0.03 m variants; it does not establish a separate improvement caused by the margin. Equations (8)–(13): [it2/review_matching.py](it2/review_matching.py) and the comparison driver [scripts/90_comparator_full.py](scripts/90_comparator_full.py).
 
+**Operational ID stage (separate from identifier-masked simulation):**
+
+$$
+\tag{14}
+M_{\mathrm{ID}}=\{(i,j):g_i=g_j\neq\varnothing,\;
+k_i=k_j,\;
+\#_X(g_i)=\#_Y(g_j)=1\}.
+$$
+
+The operational pipeline may apply (14), then unique class–Tag matching, then review-aware geometry. **The controlled Tag-regeneration experiments do not use (14).** See [it2/checker.py](it2/checker.py).
+
+### 4. Evaluation equations
+
+For ground-truth surviving pairs \(T\), predicted pairs \(M\), \(TP=|M\cap T|\), and \(N=|T|\):
+
+$$
+\tag{15}
+P=\frac{TP}{|M|},\qquad
+R=\frac{TP}{N},\qquad
+F_1=\frac{2PR}{P+R}.
+$$
+
+$$
+\tag{16}
+W=\frac{|M|-TP}{N},\qquad
+U=\frac{\bigl|\{(i,j)\in T:\nexists k,\;(k,j)\in M\}\bigr|}{N}.
+$$
+
+$$
+\tag{17}
+\overline{x}_{\mathrm{macro}}
+=\frac{1}{K}\sum_{r=1}^{K}x_r,
+\qquad
+CI_{95\%}(\overline{x})
+=\left[Q_{0.025}\!\left(\overline{x}^{*}\right),\;
+Q_{0.975}\!\left(\overline{x}^{*}\right)\right].
+$$
+
+Macro averages are **36 input/reference pairs** for Table 3 and **three fixed models × 20 seeds** for Table 6. The bootstrap resamples seed-level perturbation runs; these are not 60 independent buildings. Software convention in [it2/matching.py](it2/matching.py): empty predictions yield \(P=1\); for nonempty truth, \(R=0\). This is a reporting convention, not proof of perfect precision.
+
+### 5. Cross-revision edge changes and structural signatures
+
+Let \(f:D_{\mathrm{old}}'\to D_{\mathrm{new}}'\) be an accepted **one-to-one** element map and let \(E_o^f=\{\{f(u),f(v)\}:\{u,v\}\in E_o,\ u,v\in\operatorname{dom}f\}\), \(E_n^f=\{\{u,v\}\in E_n:u,v\in\operatorname{im}f\}\).
+
+$$
+\tag{18}
+E_{\mathrm{retained}}=E_o^f\cap E_n^f,\qquad
+E_{\mathrm{removed}}=E_o^f\setminus E_n^f,\qquad
+E_{\mathrm{added}}=E_n^f\setminus E_o^f.
+$$
+
+An edge with an unmatched endpoint is **unresolved**, not automatically deleted. These quantities compare exported adjacency, not physical network correctness: [it2/graph.py](it2/graph.py).
+
+**Two-round Weisfeiler–Lehman structural signatures** (the constructed graph baseline, not BIMdiff):
+
+$$
+\tag{19}
+s_v^{(0)}=k_v,\qquad
+s_v^{(t+1)}
+=H\!\left(s_v^{(t)}\Vert
+\operatorname{sort}\{s_u^{(t)}:u\in N_G(v)\}\right),
+\quad t\in\{0,1\}.
+$$
+
+$$
+\tag{20}
+M_{\mathrm{struct}}=\{(i,j):s_i^{(2)}=s_j^{(2)},
+\ |\{a:s_a^{(2)}=s_i^{(2)}\}|_X
+=|\{b:s_b^{(2)}=s_j^{(2)}\}|_Y=1\}.
+$$
+
+The signature-partitioned geometric variant instead assigns candidates **within equal-signature groups**, using centre distance and, for eligible group sizes, an additional dimension-difference term with a \(0.5\) m post-assignment gate. See [scripts/08_comparator_signature.py](scripts/08_comparator_signature.py) and [scripts/90_comparator_full.py](scripts/90_comparator_full.py).
+
+---
 
 ## Reproduce the study
 
