@@ -49,8 +49,8 @@ Raw-IFC mode also runs file-level round trips, but does not cover all external c
 **3. Figure 2 and independent negative control (write to a NEW output directory).**
 
 ~~~powershell
-python scripts/plot_isarc_identity.py ./local-audit-output
-python scripts/93_topology_negative_control.py data/ifc/Duplex_Plumbing_20121113.ifc ./local-audit-output
+python scripts/plot_isarc_identity.py ../it2-paper-audit-output
+python scripts/93_topology_negative_control.py data/ifc/Duplex_Plumbing_20121113.ifc ../it2-paper-audit-output
 ~~~
 
 The output directory should be kept outside the repository for a protected audit. The published [audit evidence](audit/2026-11-13/) is a snapshot of a prior independent run; new run outputs may be placed elsewhere.
@@ -61,10 +61,10 @@ The output directory should be kept outside the repository for a protected audit
 python scripts/90_comparator_full.py
 python scripts/91_contemporary_comparison.py --models Duplex_Plumbing --seeds 1 --start 3000
 python scripts/92_ambiguity_comparison.py --models Duplex_Plumbing --seeds 3 --start 4000
-python scripts/94_ifcdiff_direct_check.py
+python scripts/94_ifcdiff_direct_check.py data/ifc/Duplex_Plumbing_20121113.ifc ../it2-paper-audit-output/ifcdiff_seed3000.json
 ~~~
 
-These commands require the actual raw IFCs and, for contemporary tools, compatible installations of **bimdelta-core 0.9.0** and **ifcdiff 0.9.0**. Those are optional comparator dependencies **not installed by environment.yml**; see [comparator environment record](audit/2026-11-13/comparator-environment.txt). Check the relevant script's arguments before running, particularly the direct IfcDiff script. The stress scripts may write into results/; for an integrity-preserving rerun, execute them in a **separate working copy** rather than the archived repository.
+These commands require the actual raw IFCs and, for contemporary tools, compatible installations of **bimdelta-core 0.9.0** and **ifcdiff 0.9.0**. Those are optional comparator dependencies **not installed by environment.yml**; see [comparator environment record](audit/2026-11-13/comparator-environment.txt). The direct IfcDiff script requires a source IFC and destination JSON path; its default seed is 3000. Check the script's arguments and installed library versions before running. The stress scripts may write into results/; for an integrity-preserving rerun, execute them in a **separate working copy** rather than the archived repository.
 
 ## Evidence and integrity boundaries
 
