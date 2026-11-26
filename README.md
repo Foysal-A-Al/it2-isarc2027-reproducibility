@@ -168,12 +168,14 @@ E=\{\{h(p),h(q)\}:
 (p,q)\in R,\; |H(p)|=|H(q)|=1,\;h(p)\neq h(q)\},\qquad G=(D,E).
 ```
 
+Here $p(e)$ is the number of host-associated ports of element $e$; $d_Z(v)$ is the number of selected matching pairs incident to $v$.
+
 **Coverage and graph descriptors**, with \(P_R=\{p:\exists q,\;(p,q)\in R\lor(q,p)\in R\}\), connected components \(C_1,\ldots,C_K\), and \(D_S\subseteq D\) belonging to a named system:
 
 **Equation (2)**
 
 ```math
-PC=\frac{\sum_{e\in D}\mathbf{1}[\,\deg_{\mathrm{ports}}(e)>0\,]}{|D|},
+PC=\frac{\sum_{e\in D}\mathbf{1}[\,p(e)>0\,]}{|D|},
 \quad
 CC=\begin{cases}\frac{|P_R|}{|P|},&|P|>0,\\[2pt]0,&|P|=0,\end{cases}
 ```
@@ -185,7 +187,7 @@ LC=\frac{\max_{1\leq r\leq K}|C_r|}{|D|},
 \qquad
 SM=\frac{|D_S|}{|D|},
 \qquad
-K=|\operatorname{CC}(G)|.
+K=|\mathrm{CC}(G)|.
 ```
 
 For \(D=\varnothing\), the implementation raises an error. \(CC\) counts **ports in exported connection relations**, even if a relation is excluded from \(E\) because its host is ambiguous. Equations (1)–(3): [it2/graph.py](it2/graph.py), [it2/topology.py](it2/topology.py).
@@ -278,10 +280,10 @@ C^R_{ij}=
 **Equation (11)**
 
 ```math
-Z_R^\star = \mathop{\rm arg\,min}_{Z\in\mathcal{Z}_{\max}}
+Z_R^\star = \underset{Z\in\mathcal{Z}_{\max}}{\mathrm{argmin}}
 \sum_{(i,j)\in Z}C^R_{ij},
 \qquad
-\mathcal{Z}_{\max} = \{Z\subseteq\mathcal{F}: |Z|=n^\star,\; \deg_Z(i)\leq 1,\;\deg_Z(j)\leq 1\}
+\mathcal{Z}_{\max} = \{Z\subseteq\mathcal{F}: |Z|=n^\star,\; d_Z(i)\leq 1,\;d_Z(j)\leq 1\}
 ```
 
 **Stage R4 — confidence-by-competition rejection.** For a geometrically assigned \((i,j)\), compare its cost to all other candidates in its row and column of the **same class cost matrix**:
@@ -350,7 +352,7 @@ Macro averages are **36 input/reference pairs** for Table 3 and **three fixed mo
 
 ### 5. Cross-revision edge changes and structural signatures
 
-Let \(f:D_{\mathrm{old}}'\to D_{\mathrm{new}}'\) be an accepted **one-to-one** element map and let \(E_o^f=\{\{f(u),f(v)\}:\{u,v\}\in E_o,\ u,v\in\operatorname{dom}f\}\), \(E_n^f=\{\{u,v\}\in E_n:u,v\in\operatorname{im}f\}\).
+Let \(f:D_{\mathrm{old}}'\to D_{\mathrm{new}}'\) be an accepted **one-to-one** element map and let \(E_o^f=\{\{f(u),f(v)\}:\{u,v\}\in E_o,\ u,v\in\mathrm{dom}(f)\}\), \(E_n^f=\{\{u,v\}\in E_n:u,v\in\mathrm{im}(f)\}\).
 
 **Equation (18)**
 
@@ -370,7 +372,7 @@ An edge with an unmatched endpoint is **unresolved**, not automatically deleted.
 s_v^{(0)}=k_v,\qquad
 s_v^{(t+1)}
 =H(s_v^{(t)}\Vert
-\operatorname{sort}\{s_u^{(t)}:u\in N_G(v)\}),
+\mathrm{sort}\{s_u^{(t)}:u\in N_G(v)\}),
 \quad t\in\{0,1\}.
 ```
 
