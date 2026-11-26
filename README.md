@@ -155,8 +155,8 @@ The following is the **equation-level specification of the implemented research 
 | \(X=\{x_i\}_{i=1}^{n}\), \(Y=\{y_j\}_{j=1}^{m}\) | Earlier and revised IFC element sets |
 | \(g_i,t_i,q_i,k_i\) | GlobalId, Tag, type name, IFC class of an element |
 | \(s_i,\mathbf{c}_i,\mathbf{d}_i,\mathbf{p}_i\) | Spatial container, box centre, sorted box dimensions, placement origin |
-| \(D,P,R\) | Distribution elements, exported ports, \`IfcRelConnectsPorts\` relations |
-| \(h(p)\) | Host distribution element of port \(p\), when unique |
+| \(D,P,R\) | Distribution elements, exported ports, `IfcRelConnectsPorts` relations |
+| \(H(p),h(p)\) | Set of host elements of port \(p\); its unique member when \(|H(p)|=1\) |
 | \(M,T\) | Predicted pairs and reference-correct survivor pairs |
 
 **Explicit-port adjacency** (undirected, uniquely owned endpoints):
@@ -164,7 +164,7 @@ The following is the **equation-level specification of the implemented research 
 $$
 \tag{1}
 E=\left\{\{h(p),h(q)\}:
-(p,q)\in R,\; |h(p)|=|h(q)|=1,\;h(p)\neq h(q)\right\},\qquad G=(D,E).
+(p,q)\in R,\; |H(p)|=|H(q)|=1,\;h(p)\neq h(q)\right\},\qquad G=(D,E).
 $$
 
 **Coverage and graph descriptors**, with \(P_R=\{p:\exists q,\;(p,q)\in R\lor(q,p)\in R\}\), connected components \(C_1,\ldots,C_K\), and \(D_S\subseteq D\) belonging to a named system:
